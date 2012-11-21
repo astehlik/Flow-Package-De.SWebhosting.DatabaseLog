@@ -11,20 +11,25 @@ namespace De\SWebhosting\DatabaseLog\Log;
  * The TYPO3 project - inspiring people to share!                         *
  *                                                                        */
 
-use TYPO3\FLOW3\Annotations as FLOW3;
+use TYPO3\Flow\Annotations as FLOW3;
 
 /**
  * The tape archive logger, based on the user action logger
  */
-class UserActionLogger extends \TYPO3\FLOW3\Log\Logger implements UserActionLoggerInterface {
+class UserActionLogger extends \TYPO3\Flow\Log\Logger implements UserActionLoggerInterface {
 
 	/**
-	 * @var \TYPO3\FLOW3\Object\ObjectManagerInterface
+	 * @var \TYPO3\Flow\Object\ObjectManagerInterface
 	 * @FLOW3\Inject
 	 */
 	protected $objectManager;
 
 	/**
+	 * Writes a message in the log and adds the given party to the additional data.
+	 *
+	 * When the DatabaseBackend is used, the user will be extracted from the additional data
+	 * and a relation to the party table will be stored.
+	 *
 	 * @param string $message
 	 * @param \TYPO3\Party\Domain\Model\AbstractParty $user
 	 * @param int $severity
@@ -68,10 +73,12 @@ class UserActionLogger extends \TYPO3\FLOW3\Log\Logger implements UserActionLogg
 	}
 
 	/**
-	 * Tries to determine the package name from the class namespace
+	 * Tries to determine the package name from the class namespace by checking
+	 * all namespaces for the Package class. If it is found the namespace parts
+	 * will be imploded with dots.
 	 *
 	 * @param string $className
-	 * @return string
+	 * @return string The package name or an empty string if the package can not be determined
 	 */
 	protected function getPackageKeyByClassName($className) {
 

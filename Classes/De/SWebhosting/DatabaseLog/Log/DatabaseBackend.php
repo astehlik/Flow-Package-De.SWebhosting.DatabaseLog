@@ -11,12 +11,12 @@ namespace De\SWebhosting\DatabaseLog\Log;
  * The TYPO3 project - inspiring people to share!                         *
  *                                                                        */
 
-use TYPO3\FLOW3\Annotations as FLOW3;
+use TYPO3\Flow\Annotations as FLOW3;
 
 /**
  * A Backend for storing logs in the database
  */
-class DatabaseBackend extends \TYPO3\FLOW3\Log\Backend\AbstractBackend {
+class DatabaseBackend extends \TYPO3\Flow\Log\Backend\AbstractBackend {
 
 	/**
 	 * @var \De\SWebhosting\DatabaseLog\Domain\Repository\LogEntryRepository

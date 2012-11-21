@@ -14,7 +14,7 @@ namespace De\SWebhosting\DatabaseLog\Log;
 /**
  * Marker interface for the tape archive logger.
  */
-interface UserActionLoggerInterface extends \TYPO3\FLOW3\Log\LoggerInterface {
+interface UserActionLoggerInterface extends \TYPO3\Flow\Log\LoggerInterface {
 
 	/**
 	 * @abstract
