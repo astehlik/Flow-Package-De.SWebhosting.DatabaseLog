@@ -55,6 +55,7 @@ class LogEntry {
 	 * The class that created this log message
 	 *
 	 * @var string
+	 * @ORM\Column(nullable=true)
 	 */
 	protected $className;
 
@@ -69,6 +70,7 @@ class LogEntry {
 	 * The IP address from where the request was made that caused the log entry
 	 *
 	 * @var string
+	 * @ORM\Column(nullable=true)
 	 */
 	protected $ipAddress;
 
@@ -83,6 +85,7 @@ class LogEntry {
 	 * The method that created this log message
 	 *
 	 * @var string
+	 * @ORM\Column(nullable=true)
 	 */
 	protected $methodName;
 
@@ -90,6 +93,7 @@ class LogEntry {
 	 * The package that created this log message
 	 *
 	 * @var string
+	 * @ORM\Column(nullable=true)
 	 */
 	protected $packageKey;
 
@@ -127,6 +131,7 @@ class LogEntry {
 		$this->packageKey = $packageKey;
 		$this->className = $className;
 		$this->methodName = $methodName;
+		$this->ipAddress = NULL;
 	}
 
 	/**
