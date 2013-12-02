@@ -53,7 +53,7 @@ class DatabaseBackend extends \TYPO3\Flow\Log\Backend\AbstractBackend {
 			return;
 		}
 
-		$user = NULL;
+		$account = NULL;
 
 		if (isset($additionalData)) {
 
@@ -61,13 +61,13 @@ class DatabaseBackend extends \TYPO3\Flow\Log\Backend\AbstractBackend {
 				throw new \InvalidArgumentException('For the database backend the additional data needs to be an array');
 			}
 
-			if (array_key_exists('userFromUserActionLog', $additionalData)) {
+			if (array_key_exists('accountFromUserActionLog', $additionalData)) {
 
-				$possibleUser = $additionalData['userFromUserActionLog'];
-				unset($additionalData['userFromUserActionLog']);
+				$possibleAccount = $additionalData['accountFromUserActionLog'];
+				unset($additionalData['accountFromUserActionLog']);
 
-				if ($possibleUser instanceof \TYPO3\Party\Domain\Model\AbstractParty) {
-					$user = $possibleUser;
+				if ($possibleAccount instanceof \TYPO3\Flow\Security\Account) {
+					$account = $possibleAccount;
 				}
 			}
 
@@ -78,8 +78,8 @@ class DatabaseBackend extends \TYPO3\Flow\Log\Backend\AbstractBackend {
 
 		$logEntry = new \De\SWebhosting\DatabaseLog\Domain\Model\LogEntry($message, $severity, $additionalData, $packageKey, $className, $methodName);
 
-		if (isset($user)) {
-			$logEntry->setUser($user);
+		if (isset($account)) {
+			$logEntry->setAccount($account);
 		}
 
 		$ipAddress = ($this->logIpAddress === TRUE) ? str_pad((isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : ''), 15) : '';

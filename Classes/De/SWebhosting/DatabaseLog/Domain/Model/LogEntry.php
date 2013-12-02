@@ -23,12 +23,33 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class LogEntry {
 
+
+	/**
+	 * The identifier of the account that triggered the log entry.
+	 *
+	 * This is usefull if the user record was deleted.
+	 *
+	 * @var string
+	 */
+	protected $accountIdentifier;
+
 	/**
 	 * Array containing additional log data, will be used by the translation system
 	 *
 	 * @var array
+	 * @ORM\Column(nullable=true)
 	 */
 	protected $additionalData;
+
+	/**
+	 * An account identifier always belongs to an authentication provider.
+	 * To find out which account was used when the log entry was created it
+	 * is essential to also know the authentication provider to which
+	 * the account identifier belongs.
+	 *
+	 * @var string
+	 */
+	protected $authenticationProviderName;
 
 	/**
 	 * The class that created this log message
@@ -84,6 +105,7 @@ class LogEntry {
 	 *
 	 * @var \TYPO3\Party\Domain\Model\AbstractParty
 	 * @ORM\ManyToOne
+	 * @ORM\Column(nullable=true)
 	 */
 	protected $user;
 
@@ -171,9 +193,11 @@ class LogEntry {
 	}
 
 	/**
-	 * @param \TYPO3\Party\Domain\Model\AbstractParty $user
+	 * @param \TYPO3\Flow\Security\Account $account
 	 */
-	public function setUser($user) {
-		$this->user = $user;
+	public function setAccount($account) {
+		$this->accountIdentifier = $account->getAccountIdentifier();
+		$this->authenticationProviderName = $account->getAuthenticationProviderName();
+		$this->user = $account->getParty();
 	}
 }
