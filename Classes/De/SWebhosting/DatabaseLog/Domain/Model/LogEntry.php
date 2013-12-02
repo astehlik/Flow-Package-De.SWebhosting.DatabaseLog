@@ -158,6 +158,13 @@ class LogEntry {
 	/**
 	 * @return string
 	 */
+	public function getIpAddress() {
+		return $this->ipAddress;
+	}
+
+	/**
+	 * @return string
+	 */
 	public function getMessage() {
 		return $this->message;
 	}
