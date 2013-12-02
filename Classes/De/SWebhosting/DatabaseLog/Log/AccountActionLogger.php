@@ -2,7 +2,8 @@
 namespace De\SWebhosting\DatabaseLog\Log;
 
 /*                                                                        *
- * This script belongs to the FLOW3 package "DatabaseLog".                *
+ * This script belongs to the TYPO3 Flow package                          *
+ * "De.SWebhosting.DatabaseLog".                                          *
  *                                                                        *
  * It is free software; you can redistribute it and/or modify it under    *
  * the terms of the GNU General Public License, either version 3 of the   *
@@ -16,7 +17,7 @@ use TYPO3\Flow\Annotations as FLOW3;
 /**
  * The tape archive logger, based on the user action logger
  */
-class UserActionLogger extends \TYPO3\Flow\Log\Logger implements UserActionLoggerInterface {
+class AccountActionLogger extends \TYPO3\Flow\Log\Logger implements AccountActionLoggerInterface {
 
 	/**
 	 * @var \TYPO3\Flow\Object\ObjectManagerInterface
@@ -31,23 +32,25 @@ class UserActionLogger extends \TYPO3\Flow\Log\Logger implements UserActionLogge
 	 * and a relation to the party table will be stored.
 	 *
 	 * @param string $message
-	 * @param \TYPO3\Party\Domain\Model\AbstractParty $user
+	 * @param \TYPO3\Flow\Security\Account $account
 	 * @param int $severity
 	 * @param array $additionalData
 	 * @param string $packageKey
 	 * @param string $className
 	 * @param string $methodName
-	 * @param int $backTraceDepth
+	 * @param int $backTraceOffset
 	 * @return void
 	 */
-	public function logUserAction($message, $user, $severity = LOG_INFO, $additionalData = NULL, $packageKey = NULL, $className = NULL, $methodName = NULL, $backTraceDepth = 1) {
+	public function logAccountAction($message, $account, $severity = LOG_INFO, $additionalData = NULL, $packageKey = NULL, $className = NULL, $methodName = NULL, $backTraceOffset = 0) {
 
-		if (isset($user)) {
-			$additionalData['userFromUserActionLog'] = $user;
+		if (isset($account)) {
+			$additionalData['accountFromUserActionLog'] = $account;
 		}
 
 		if ($packageKey === NULL) {
-			list($packageKey, $className, $methodName) = $this->getBacktraceData($backTraceDepth + 1);
+			// We add plus two because we do not want the logAccountAction() or the
+			// getFirstClassFromBacktrace() method to appear in the backtrace
+			list($packageKey, $className, $methodName) = $this->getFirstClassFromBacktrace($backTraceOffset + 2);
 		}
 
 		$this->log($message, $severity, $additionalData, $packageKey, $className, $methodName);
@@ -56,16 +59,45 @@ class UserActionLogger extends \TYPO3\Flow\Log\Logger implements UserActionLogge
 	/**
 	 * Returns backtrace data
 	 *
-	 * @param int $backTraceDepth
+	 * @param integer $backTraceOffset
 	 * @return array
 	 */
-	protected function getBacktraceData($backTraceDepth) {
+	protected function getFirstClassFromBacktrace($backTraceOffset) {
 
-		$backtrace = debug_backtrace(FALSE);
+		$packageKey = NULL;
+		$className = NULL;
+		$methodName = NULL;
 
-		$className = isset($backtrace[$backTraceDepth]['class']) ? $backtrace[$backTraceDepth]['class'] : NULL;
-		$methodName = isset($backtrace[$backTraceDepth]['function']) ? $backtrace[$backTraceDepth]['function'] : NULL;
-		$packageKey = $this->getPackageKeyByClassName($className);
+		$backtraceArray = debug_backtrace(FALSE);
+		foreach ($backtraceArray as $backtraceData) {
+
+			$methodName = isset($backtraceData['function']) ? $backtraceData['function'] : NULL;
+			if (!isset($methodName)) {
+				continue;
+			}
+
+			// Filter out some system methods
+			if ($methodName === '__call' || $methodName === 'call_user_func' || $methodName === 'call_user_func_array') {
+				continue;
+			}
+
+			if ($backTraceOffset > 0) {
+				$backTraceOffset--;
+				continue;
+			}
+
+			$className = isset($backtraceData['class']) ? $backtraceData['class'] : NULL;
+			if (isset($className)) {
+
+				// Filter out system class names
+				if (strstr($className, 'DependencyProxy')) {
+					continue;
+				}
+
+				$packageKey = $this->getPackageKeyByClassName($className);
+				break;
+			}
+		}
 
 		$backtraceData = array($packageKey, $className, $methodName);
 
@@ -106,4 +138,3 @@ class UserActionLogger extends \TYPO3\Flow\Log\Logger implements UserActionLogge
 		return '';
 	}
 }
-?>

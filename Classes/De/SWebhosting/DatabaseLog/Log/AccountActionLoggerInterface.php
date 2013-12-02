@@ -2,7 +2,8 @@
 namespace De\SWebhosting\DatabaseLog\Log;
 
 /*                                                                        *
- * This script belongs to the FLOW3 package "DatabaseLog".                *
+ * This script belongs to the TYPO3 Flow package                          *
+ * "De.SWebhosting.DatabaseLog".                                          *
  *                                                                        *
  * It is free software; you can redistribute it and/or modify it under    *
  * the terms of the GNU General Public License, either version 3 of the   *
@@ -14,7 +15,7 @@ namespace De\SWebhosting\DatabaseLog\Log;
 /**
  * Marker interface for the tape archive logger.
  */
-interface UserActionLoggerInterface extends \TYPO3\Flow\Log\LoggerInterface {
+interface AccountActionLoggerInterface extends \TYPO3\Flow\Log\LoggerInterface {
 
 	/**
 	 * @abstract
@@ -25,9 +26,10 @@ interface UserActionLoggerInterface extends \TYPO3\Flow\Log\LoggerInterface {
 	 * @param string $packageKey
 	 * @param string $className
 	 * @param string $methodName
+	 * @param int $backTraceOffset
 	 * @return void
 	 */
-	public function logUserAction($message, $user, $severity = LOG_INFO, $additionalData = NULL, $packageKey = NULL, $className = NULL, $methodName = NULL);
+	public function logAccountAction($message, $user, $severity = LOG_INFO, $additionalData = NULL, $packageKey = NULL, $className = NULL, $methodName = NULL, $backTraceOffset = 0);
 }
 
 ?>
