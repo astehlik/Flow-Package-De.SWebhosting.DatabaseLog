@@ -31,7 +31,7 @@ class LogEntry {
 	 *
 	 * @var string
 	 */
-	protected $accountIdentifier;
+	protected $accountIdentifier = '';
 
 	/**
 	 * Array containing additional log data, will be used by the translation system
@@ -49,7 +49,7 @@ class LogEntry {
 	 *
 	 * @var string
 	 */
-	protected $authenticationProviderName;
+	protected $authenticationProviderName = '';
 
 	/**
 	 * The class that created this log message
@@ -208,8 +208,8 @@ class LogEntry {
 	 * @param \TYPO3\Flow\Security\Account $account
 	 */
 	public function setAccount($account) {
-		$this->accountIdentifier = $account->getAccountIdentifier();
-		$this->authenticationProviderName = $account->getAuthenticationProviderName();
+		$this->accountIdentifier = (string)$account->getAccountIdentifier();
+		$this->authenticationProviderName = (string)$account->getAuthenticationProviderName();
 		$this->user = $account->getParty();
 	}
 }
