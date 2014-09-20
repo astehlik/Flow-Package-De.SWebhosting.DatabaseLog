@@ -12,14 +12,14 @@ namespace De\SWebhosting\DatabaseLog\Domain\Model;
  * The TYPO3 project - inspiring people to share!                         *
  *                                                                        */
 
-use TYPO3\Flow\Annotations as FLOW3;
 use Doctrine\ORM\Mapping as ORM;
+use TYPO3\Flow\Annotations as Flow;
 
 /**
  * A log entry
  *
- * @FLOW3\Scope("prototype")
- * @FLOW3\Entity
+ * @Flow\Scope("prototype")
+ * @Flow\Entity
  */
 class LogEntry {
 
@@ -98,6 +98,13 @@ class LogEntry {
 	protected $packageKey;
 
 	/**
+	 * @var \TYPO3\Flow\Persistence\PersistenceManagerInterface
+	 * @Flow\Inject
+	 * @Flow\Transient
+	 */
+	protected $persistenceManager;
+
+	/**
 	 * The severity of the log entry
 	 *
 	 * @var int
@@ -105,13 +112,18 @@ class LogEntry {
 	protected $severity;
 
 	/**
-	 * The user that triggered the log entry
+	 * The user that triggered the log entry.
 	 *
-	 * @var \TYPO3\Party\Domain\Model\AbstractParty
-	 * @ORM\ManyToOne
+	 * @var string
 	 * @ORM\Column(nullable=true)
 	 */
-	protected $user;
+	protected $userFullName;
+
+	/**
+	 * @var string
+	 * @ORM\Column(nullable=true)
+	 */
+	protected $userObjectIdentifier;
 
 	/**
 	 * Creates a new log entry
@@ -191,10 +203,16 @@ class LogEntry {
 	}
 
 	/**
-	 * @return \TYPO3\Party\Domain\Model\AbstractParty
+	 * Sets the account properties and if the account has a related user
+	 * it will also set the user properties.
+	 *
+	 * @param \TYPO3\Flow\Security\Account $account
+	 * @return void
 	 */
-	public function getUser() {
-		return $this->user;
+	public function setAccount($account) {
+		$this->accountIdentifier = (string)$account->getAccountIdentifier();
+		$this->authenticationProviderName = (string)$account->getAuthenticationProviderName();
+		$this->setUser($account->getParty());
 	}
 
 	/**
@@ -205,11 +223,47 @@ class LogEntry {
 	}
 
 	/**
-	 * @param \TYPO3\Flow\Security\Account $account
+	 * If the user is not NULL the userObjectIdentifier property will be set
+	 * to the object identifier of the given user. Additionally setUserFullName
+	 * will be called.
+	 *
+	 * @param \TYPO3\Party\Domain\Model\AbstractParty $user
+	 * @return void
 	 */
-	public function setAccount($account) {
-		$this->accountIdentifier = (string)$account->getAccountIdentifier();
-		$this->authenticationProviderName = (string)$account->getAuthenticationProviderName();
-		$this->user = $account->getParty();
+	protected function setUser($user) {
+
+		if (!isset($user)) {
+			$this->userObjectIdentifier = NULL;
+			$this->userFullName = NULL;
+			return;
+		}
+
+		$this->userObjectIdentifier = $this->persistenceManager->getIdentifierByObject($user);
+		$this->setUserFullName($user);
+	}
+
+	/**
+	 * Sets the userFullName property if the given user is an instance
+	 * of Person and has an associated name. Otherwise the property
+	 * is reset to NULL.
+	 *
+	 * @param \TYPO3\Party\Domain\Model\AbstractParty $user
+	 * @return void
+	 */
+	protected function setUserFullName($user) {
+
+		$this->userFullName = NULL;
+
+		if (
+			!isset($user)
+			|| !$user instanceof \TYPO3\Party\Domain\Model\Person
+		) {
+			return;
+		}
+
+		$personName = $user->getName();
+		if (isset($personName)) {
+			$this->userFullName = $personName->getFullName();
+		}
 	}
 }

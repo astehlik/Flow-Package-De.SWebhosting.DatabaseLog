@@ -12,12 +12,12 @@ namespace De\SWebhosting\DatabaseLog\Domain\Repository;
  * The TYPO3 project - inspiring people to share!                         *
  *                                                                        */
 
-use TYPO3\Flow\Annotations as FLOW3;
+use TYPO3\Flow\Annotations as Flow;
 
 /**
  * Repository for log entries
  *
- * @FLOW3\Scope("singleton")
+ * @Flow\Scope("singleton")
  */
 class LogEntryRepository extends \TYPO3\Flow\Persistence\Repository {
 
@@ -37,7 +37,7 @@ class LogEntryRepository extends \TYPO3\Flow\Persistence\Repository {
 
 		$query->matching(
 			$query->logicalAnd(
-				$query->equals('user', $user),
+				$query->equals('userObjectIdentifier', $user),
 				$query->equals('message', $message)
 			)
 		);
