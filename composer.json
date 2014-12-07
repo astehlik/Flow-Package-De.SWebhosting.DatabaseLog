@@ -1,15 +1,14 @@
 {
-    "name": "de.swebhosting/databaselog",
-    "type": "typo3-flow-package",
-    "description": "Provides a Backend for writing log entries to the database and a logger for connecting log entries with partys from the party framework.",
-    "license": "GPL-3.0+",
-    "version": "0.0.1",
-    "require": {
-        "typo3/flow": "*"
-    },
-    "autoload": {
-        "psr-0": {
-            "De\\SWebhosting\\DatabaseLog": "Classes"
-        }
-    }
+	"name": "de-swebhosting-flow-package/databaselog",
+	"type": "typo3-flow-package",
+	"description": "Provides a Backend for writing log entries to the database and a logger for connecting log entries with partys from the party framework.",
+	"license": "GPL-3.0+",
+	"require": {
+		"typo3/flow": "*"
+	},
+	"autoload": {
+		"psr-4": {
+			"De\\SWebhosting\\DatabaseLog\\": "Classes"
+		}
+	}
 }
