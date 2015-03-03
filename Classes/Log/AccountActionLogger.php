@@ -12,7 +12,7 @@ namespace De\SWebhosting\DatabaseLog\Log;
  * The TYPO3 project - inspiring people to share!                         *
  *                                                                        */
 
-use TYPO3\Flow\Annotations as FLOW3;
+use TYPO3\Flow\Annotations as Flow;
 
 /**
  * The tape archive logger, based on the user action logger
@@ -44,7 +44,7 @@ class AccountActionLogger extends \TYPO3\Flow\Log\Logger implements AccountActio
 	public function logAccountAction($message, $account, $severity = LOG_INFO, $additionalData = NULL, $packageKey = NULL, $className = NULL, $methodName = NULL, $backTraceOffset = 0) {
 
 		if (isset($account)) {
-			$additionalData['accountFromUserActionLog'] = $account;
+			$additionalData['De.SWebhosting.DatabaseLog.Account'] = $account;
 		}
 
 		if ($packageKey === NULL) {

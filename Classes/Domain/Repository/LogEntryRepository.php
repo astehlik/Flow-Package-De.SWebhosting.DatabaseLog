@@ -15,29 +15,29 @@ namespace De\SWebhosting\DatabaseLog\Domain\Repository;
 use TYPO3\Flow\Annotations as Flow;
 
 /**
- * Repository for log entries
+ * Repository for log entries.
  *
  * @Flow\Scope("singleton")
+ * @method \TYPO3\Flow\Persistence\QueryResultInterface findByUserObjectIdentifier(string $user)
  */
 class LogEntryRepository extends \TYPO3\Flow\Persistence\Repository {
 
 	/**
-	 * Finds a log entry by user and message. The latest entries are on the top and
-	 * no limit is applied by default.
+	 * Finds a log entry by user and message. The latest entries are on the top and no limit is applied by default.
 	 *
-	 * @param \TYPO3\Party\Domain\Model\AbstractParty $user the user to search for
-	 * @param string $message the message to search for
-	 * @param array $orderings the order of the log messages
-	 * @param int $limit limit the number of results
+	 * @param string|\TYPO3\Party\Domain\Model\AbstractParty $userObjectIdentifier The user or the object identifier of the user to search for.
+	 * @param string $message The message to search for.
+	 * @param array $orderings The order of the log messages.
+	 * @param int $limit Limit the number of results.
 	 * @return \TYPO3\Flow\Persistence\QueryResultInterface
 	 */
-	public function findByUserAndMessage($user, $message, $limit = NULL, $orderings = array('dateTime' => \TYPO3\Flow\Persistence\QueryInterface::ORDER_DESCENDING)) {
+	public function findByUserAndMessage($userObjectIdentifier, $message, $limit = NULL, $orderings = array('dateTime' => \TYPO3\Flow\Persistence\QueryInterface::ORDER_DESCENDING)) {
 
 		$query = $this->createQuery();
 
 		$query->matching(
 			$query->logicalAnd(
-				$query->equals('userObjectIdentifier', $user),
+				$query->equals('userObjectIdentifier', $userObjectIdentifier),
 				$query->equals('message', $message)
 			)
 		);
@@ -52,12 +52,12 @@ class LogEntryRepository extends \TYPO3\Flow\Persistence\Repository {
 	}
 
 	/**
-	 * Removes all log entries from the given user
+	 * Removes all log entries from the given user.
 	 *
-	 * @param \TYPO3\Party\Domain\Model\AbstractParty $user
+	 * @param string|\TYPO3\Party\Domain\Model\AbstractParty $userObjectIdentifier
 	 */
-	public function removeAllFromUser($user) {
-		$userLogEntries = $this->findByUser($user);
+	public function removeAllFromUser($userObjectIdentifier) {
+		$userLogEntries = $this->findByUserObjectIdentifier($userObjectIdentifier);
 		foreach ($userLogEntries as $logEntry) {
 			$this->remove($logEntry);
 		}

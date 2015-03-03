@@ -12,10 +12,12 @@ namespace De\SWebhosting\DatabaseLog\Log;
  * The TYPO3 project - inspiring people to share!                         *
  *                                                                        */
 
+use TYPO3\Flow\Log\LoggerInterface;
+
 /**
  * Marker interface for the tape archive logger.
  */
-interface AccountActionLoggerInterface extends \TYPO3\Flow\Log\LoggerInterface {
+interface AccountActionLoggerInterface extends LoggerInterface {
 
 	/**
 	 * @abstract
@@ -31,5 +33,3 @@ interface AccountActionLoggerInterface extends \TYPO3\Flow\Log\LoggerInterface {
 	 */
 	public function logAccountAction($message, $user, $severity = LOG_INFO, $additionalData = NULL, $packageKey = NULL, $className = NULL, $methodName = NULL, $backTraceOffset = 0);
 }
-
-?>

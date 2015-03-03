@@ -12,7 +12,8 @@ namespace De\SWebhosting\DatabaseLog\Log;
  * The TYPO3 project - inspiring people to share!                         *
  *                                                                        */
 
-use TYPO3\Flow\Annotations as FLOW3;
+use De\SWebhosting\DatabaseLog\Domain\Model\LogEntry;
+use TYPO3\Flow\Annotations as Flow;
 
 /**
  * A Backend for storing logs in the database
@@ -24,16 +25,6 @@ class DatabaseBackend extends \TYPO3\Flow\Log\Backend\AbstractBackend {
 	 * @FLOW3\Inject
 	 */
 	protected $logEntryRepository;
-
-	/**
-	 * Carries out all actions necessary to prepare the logging backend, such as opening
-	 * the log file or opening a database connection.
-	 *
-	 * @return void
-	 */
-	public function open() {
-		// nothing to do
-	}
 
 	/**
 	 * Appends the given message along with the additional information into the log.
@@ -61,10 +52,10 @@ class DatabaseBackend extends \TYPO3\Flow\Log\Backend\AbstractBackend {
 				throw new \InvalidArgumentException('For the database backend the additional data needs to be an array');
 			}
 
-			if (array_key_exists('accountFromUserActionLog', $additionalData)) {
+			if (array_key_exists('De.SWebhosting.DatabaseLog.Account', $additionalData)) {
 
-				$possibleAccount = $additionalData['accountFromUserActionLog'];
-				unset($additionalData['accountFromUserActionLog']);
+				$possibleAccount = $additionalData['De.SWebhosting.DatabaseLog.Account'];
+				unset($additionalData['De.SWebhosting.DatabaseLog.Account']);
 
 				if ($possibleAccount instanceof \TYPO3\Flow\Security\Account) {
 					$account = $possibleAccount;
@@ -76,7 +67,7 @@ class DatabaseBackend extends \TYPO3\Flow\Log\Backend\AbstractBackend {
 			}
 		}
 
-		$logEntry = new \De\SWebhosting\DatabaseLog\Domain\Model\LogEntry($message, $severity, $additionalData, $packageKey, $className, $methodName);
+		$logEntry = new LogEntry($message, $severity, $additionalData, $packageKey, $className, $methodName);
 
 		if (isset($account)) {
 			$logEntry->setAccount($account);
@@ -95,6 +86,16 @@ class DatabaseBackend extends \TYPO3\Flow\Log\Backend\AbstractBackend {
 	 * @return void
 	 */
 	public function close() {
+		// nothing to do
+	}
+
+	/**
+	 * Carries out all actions necessary to prepare the logging backend, such as opening
+	 * the log file or opening a database connection.
+	 *
+	 * @return void
+	 */
+	public function open() {
 		// nothing to do
 	}
 }

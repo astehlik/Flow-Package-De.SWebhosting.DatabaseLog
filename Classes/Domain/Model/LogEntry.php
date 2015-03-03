@@ -14,6 +14,7 @@ namespace De\SWebhosting\DatabaseLog\Domain\Model;
 
 use Doctrine\ORM\Mapping as ORM;
 use TYPO3\Flow\Annotations as Flow;
+use TYPO3\Party\Domain\Service\PartyService;
 
 /**
  * A log entry
@@ -36,8 +37,8 @@ class LogEntry {
 	/**
 	 * Array containing additional log data, will be used by the translation system
 	 *
-	 * @var array
 	 * @ORM\Column(nullable=true)
+	 * @var array
 	 */
 	protected $additionalData;
 
@@ -54,8 +55,8 @@ class LogEntry {
 	/**
 	 * The class that created this log message
 	 *
-	 * @var string
 	 * @ORM\Column(nullable=true)
+	 * @var string
 	 */
 	protected $className;
 
@@ -69,8 +70,8 @@ class LogEntry {
 	/**
 	 * The IP address from where the request was made that caused the log entry
 	 *
-	 * @var string
 	 * @ORM\Column(nullable=true)
+	 * @var string
 	 */
 	protected $ipAddress;
 
@@ -84,10 +85,17 @@ class LogEntry {
 	/**
 	 * The method that created this log message
 	 *
-	 * @var string
 	 * @ORM\Column(nullable=true)
+	 * @var string
 	 */
 	protected $methodName;
+
+	/**
+	 * @Flow\Inject
+	 * @Flow\Transient
+	 * @var \TYPO3\Flow\Object\ObjectManagerInterface
+	 */
+	protected $objectManager;
 
 	/**
 	 * The package that created this log message
@@ -98,9 +106,16 @@ class LogEntry {
 	protected $packageKey;
 
 	/**
-	 * @var \TYPO3\Flow\Persistence\PersistenceManagerInterface
 	 * @Flow\Inject
 	 * @Flow\Transient
+	 * @var \TYPO3\Flow\Package\PackageManagerInterface
+	 */
+	protected $packageManager;
+
+	/**
+	 * @Flow\Inject
+	 * @Flow\Transient
+	 * @var \TYPO3\Flow\Persistence\PersistenceManagerInterface
 	 */
 	protected $persistenceManager;
 
@@ -114,14 +129,16 @@ class LogEntry {
 	/**
 	 * The user that triggered the log entry.
 	 *
-	 * @var string
 	 * @ORM\Column(nullable=true)
+	 * @var string
 	 */
 	protected $userFullName;
 
 	/**
-	 * @var string
+	 * We intentionally do not use the User object here to be independent from the party framework.
+	 *
 	 * @ORM\Column(nullable=true)
+	 * @var string
 	 */
 	protected $userObjectIdentifier;
 
@@ -203,16 +220,25 @@ class LogEntry {
 	}
 
 	/**
-	 * Sets the account properties and if the account has a related user
-	 * it will also set the user properties.
+	 * Sets the account properties and if the account has a related user it will
+	 * also set the user properties when the the party package is available.
 	 *
 	 * @param \TYPO3\Flow\Security\Account $account
 	 * @return void
 	 */
 	public function setAccount($account) {
+
 		$this->accountIdentifier = (string)$account->getAccountIdentifier();
 		$this->authenticationProviderName = (string)$account->getAuthenticationProviderName();
-		$this->setUser($account->getParty());
+
+		if ($this->packageManager->isPackageActive('TYPO3.Party')) {
+			/** @var PartyService $partyService */
+			$partyService = $this->objectManager->get(PartyService::class);
+			$party = $partyService->getAssignedPartyOfAccount($account);
+			if (isset($party)) {
+				$this->setUser($party);
+			}
+		}
 	}
 
 	/**
