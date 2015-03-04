@@ -1,0 +1,11 @@
+De:
+  SWebhosting:
+    DatabaseLog:
+
+      # Hint: These settings are used in Objects.yaml and are passed to the LoggerFactory.
+      log:
+        AccountActionLogger:
+          backend: De\SWebhosting\DatabaseLog\Log\DatabaseBackend
+          backendOptions:
+             severityThreshold: %LOG_INFO%
+             logIpAddress: TRUE

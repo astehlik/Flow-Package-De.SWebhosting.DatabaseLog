@@ -14,8 +14,7 @@ namespace De\SWebhosting\DatabaseLog\Tests\Functional\Log;
 
 use De\SWebhosting\DatabaseLog\Domain\Model\LogEntry;
 use De\SWebhosting\DatabaseLog\Domain\Repository\LogEntryRepository;
-use De\SWebhosting\DatabaseLog\Log\AccountActionLogger;
-use De\SWebhosting\DatabaseLog\Log\DatabaseBackend;
+use De\SWebhosting\DatabaseLog\Log\AccountActionLoggerInterface;
 use TYPO3\Flow\Security\AccountRepository;
 
 /**
@@ -29,7 +28,7 @@ class AccountActionLoggerTest extends \TYPO3\Flow\Tests\FunctionalTestCase {
 	static protected $testablePersistenceEnabled = TRUE;
 
 	/**
-	 * @var AccountActionLogger
+	 * @var AccountActionLoggerInterface
 	 */
 	protected $accountActionLogger;
 
@@ -61,12 +60,7 @@ class AccountActionLoggerTest extends \TYPO3\Flow\Tests\FunctionalTestCase {
 
 		$this->accountRepository = $this->objectManager->get(AccountRepository::class);
 		$this->logEntryRepository = $this->objectManager->get(LogEntryRepository::class);
-
-		/** @var DatabaseBackend $databaseBackend */
-		$databaseBackend = $this->objectManager->get(DatabaseBackend::class);
-
-		$this->accountActionLogger = $this->objectManager->get(AccountActionLogger::class);
-		$this->accountActionLogger->setBackend($databaseBackend);
+		$this->accountActionLogger = $this->objectManager->get(AccountActionLoggerInterface::class);
 	}
 
 	/**
