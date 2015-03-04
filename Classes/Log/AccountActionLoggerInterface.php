@@ -15,21 +15,22 @@ namespace De\SWebhosting\DatabaseLog\Log;
 use TYPO3\Flow\Log\LoggerInterface;
 
 /**
- * Marker interface for the tape archive logger.
+ * Interface for logger for tracing actions connected to an account.
  */
 interface AccountActionLoggerInterface extends LoggerInterface {
 
 	/**
-	 * @abstract
-	 * @param string $message
-	 * @param \TYPO3\Party\Domain\Model\AbstractParty $user
-	 * @param int $severity
-	 * @param array $additionalData
-	 * @param string $packageKey
-	 * @param string $className
-	 * @param string $methodName
-	 * @param int $backTraceOffset
+	 * @param string $message The log message.
+	 * @param \TYPO3\Flow\Security\Account $account The account connected to this log entry.
+	 * @param int $severity The severity of the log entry.
+	 * @param array $additionalData Optional additional data in an array.
+	 * @param string $packageKey The package key from which the logging was triggered.
+	 * @param string $className The class name from which the logging was triggered.
+	 * @param string $methodName The method name from which the logging was triggered.
+	 * @param int $backTraceOffset If the package key / class name / method name are autodetected,
+	 *        this value can be used to modify the offset that is used when reading these values
+	 *        from a debug_backtrace().
 	 * @return void
 	 */
-	public function logAccountAction($message, $user, $severity = LOG_INFO, $additionalData = NULL, $packageKey = NULL, $className = NULL, $methodName = NULL, $backTraceOffset = 0);
+	public function logAccountAction($message, $account, $severity = LOG_INFO, $additionalData = NULL, $packageKey = NULL, $className = NULL, $methodName = NULL, $backTraceOffset = 0);
 }
