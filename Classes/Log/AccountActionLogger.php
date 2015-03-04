@@ -15,15 +15,15 @@ namespace De\SWebhosting\DatabaseLog\Log;
 use TYPO3\Flow\Annotations as Flow;
 
 /**
- * The tape archive logger, based on the user action logger
+ * Logger for tracing actions connected to an account.
  */
 class AccountActionLogger extends \TYPO3\Flow\Log\Logger implements AccountActionLoggerInterface {
 
 	/**
-	 * @var \TYPO3\Flow\Object\ObjectManagerInterface
-	 * @FLOW3\Inject
+	 * @Flow\Inject
+	 * @var \De\SWebhosting\DatabaseLog\Utility\BacktraceUtility
 	 */
-	protected $objectManager;
+	protected $backtraceUtility;
 
 	/**
 	 * Writes a message in the log and adds the given party to the additional data.
@@ -31,14 +31,16 @@ class AccountActionLogger extends \TYPO3\Flow\Log\Logger implements AccountActio
 	 * When the DatabaseBackend is used, the user will be extracted from the additional data
 	 * and a relation to the party table will be stored.
 	 *
-	 * @param string $message
-	 * @param \TYPO3\Flow\Security\Account $account
-	 * @param int $severity
-	 * @param array $additionalData
-	 * @param string $packageKey
-	 * @param string $className
-	 * @param string $methodName
-	 * @param int $backTraceOffset
+	 * @param string $message The log message.
+	 * @param \TYPO3\Flow\Security\Account $account The account connected to this log entry.
+	 * @param int $severity The severity of the log entry.
+	 * @param array $additionalData Optional additional data in an array.
+	 * @param string $packageKey The package key from which the logging was triggered.
+	 * @param string $className The class name from which the logging was triggered.
+	 * @param string $methodName The method name from which the logging was triggered.
+	 * @param int $backTraceOffset If the package key / class name / method name are autodetected,
+	 *        this value can be used to modify the offset that is used when reading these values
+	 *        from a debug_backtrace().
 	 * @return void
 	 */
 	public function logAccountAction($message, $account, $severity = LOG_INFO, $additionalData = NULL, $packageKey = NULL, $className = NULL, $methodName = NULL, $backTraceOffset = 0) {
@@ -47,94 +49,14 @@ class AccountActionLogger extends \TYPO3\Flow\Log\Logger implements AccountActio
 			$additionalData['De.SWebhosting.DatabaseLog.Account'] = $account;
 		}
 
-		if ($packageKey === NULL) {
-			// We add plus two because we do not want the logAccountAction() or the
-			// getFirstClassFromBacktrace() method to appear in the backtrace
-			list($packageKey, $className, $methodName) = $this->getFirstClassFromBacktrace($backTraceOffset + 2);
+		if ($packageKey === NULL || $className === NULL || $methodName === NULL) {
+			// We add plus two because we do not want the logAccountAction() or the getBacktraceData() method to appear in the backtrace.
+			list($detectedPackageKey, $detectedClassName, $detectedMethodName) = $this->backtraceUtility->getBacktraceData($backTraceOffset + 2);
+			$packageKey = $packageKey === NULL ? $detectedPackageKey : $packageKey;
+			$className = $className === NULL ? $detectedClassName : $className;
+			$methodName = $methodName === NULL ? $detectedMethodName : $methodName;
 		}
 
 		$this->log($message, $severity, $additionalData, $packageKey, $className, $methodName);
-	}
-
-	/**
-	 * Returns backtrace data
-	 *
-	 * @param integer $backTraceOffset
-	 * @return array
-	 */
-	protected function getFirstClassFromBacktrace($backTraceOffset) {
-
-		$packageKey = NULL;
-		$className = NULL;
-		$methodName = NULL;
-
-		$backtraceArray = debug_backtrace(FALSE);
-		foreach ($backtraceArray as $backtraceData) {
-
-			$methodName = isset($backtraceData['function']) ? $backtraceData['function'] : NULL;
-			if (!isset($methodName)) {
-				continue;
-			}
-
-			// Filter out some system methods
-			if ($methodName === '__call' || $methodName === 'call_user_func' || $methodName === 'call_user_func_array') {
-				continue;
-			}
-
-			if ($backTraceOffset > 0) {
-				$backTraceOffset--;
-				continue;
-			}
-
-			$className = isset($backtraceData['class']) ? $backtraceData['class'] : NULL;
-			if (isset($className)) {
-
-				// Filter out system class names
-				if (strstr($className, 'DependencyProxy')) {
-					continue;
-				}
-
-				$packageKey = $this->getPackageKeyByClassName($className);
-				break;
-			}
-		}
-
-		$backtraceData = array($packageKey, $className, $methodName);
-
-		return $backtraceData;
-	}
-
-	/**
-	 * Tries to determine the package name from the class namespace by checking
-	 * all namespaces for the Package class. If it is found the namespace parts
-	 * will be imploded with dots.
-	 *
-	 * @param string $className
-	 * @return string The package name or an empty string if the package can not be determined
-	 */
-	protected function getPackageKeyByClassName($className) {
-
-		$classParts = explode('\\', $className);
-		$classPartCount = count($classParts) - 1;
-
-		while ($classPartCount > 0) {
-
-			$packageNamespaceParts = array_slice($classParts, 0, $classPartCount);
-			$packageNamespace = implode('\\', $packageNamespaceParts);
-			$packageClassName = $packageNamespace . '\\Package';
-
-			if (class_exists($packageClassName)) {
-
-				$packageClassParents = class_parents($packageClassName);
-
-				if (array_key_exists('TYPO3\\FLOW3\\Package\\Package', $packageClassParents)) {
-					return implode('.', $packageNamespaceParts);
-				}
-			}
-
-			$classPartCount--;
-		}
-
-		return '';
 	}
 }
