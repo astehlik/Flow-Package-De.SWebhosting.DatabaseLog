@@ -22,7 +22,7 @@ class DatabaseBackend extends \TYPO3\Flow\Log\Backend\AbstractBackend {
 
 	/**
 	 * @var \De\SWebhosting\DatabaseLog\Domain\Repository\LogEntryRepository
-	 * @FLOW3\Inject
+	 * @Flow\Inject
 	 */
 	protected $logEntryRepository;
 
