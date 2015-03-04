@@ -34,7 +34,7 @@ class LogEntry {
 	protected $accountIdentifier = '';
 
 	/**
-	 * Array containing additional log data, will be used by the translation system
+	 * Array containing additional log data.
 	 *
 	 * @ORM\Column(nullable=true)
 	 * @var array
@@ -75,14 +75,14 @@ class LogEntry {
 	protected $ipAddress;
 
 	/**
-	 * Message of the log entry, can be a translation key
+	 * Message of the log entry.
 	 *
 	 * @var string
 	 */
 	protected $message;
 
 	/**
-	 * The method that created this log message
+	 * The method that created this log message.
 	 *
 	 * @ORM\Column(nullable=true)
 	 * @var string
@@ -97,7 +97,7 @@ class LogEntry {
 	protected $objectManager;
 
 	/**
-	 * The package that created this log message
+	 * The package that created this log message.
 	 *
 	 * @var string
 	 * @ORM\Column(nullable=true)
