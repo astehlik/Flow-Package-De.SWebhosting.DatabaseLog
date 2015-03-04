@@ -7,6 +7,19 @@ This is a [TYPO3 Flow](http://flow.typo3.org) package that brings you some loggi
 2. You can search for log entries using a repository.
 3. You can store account / user information in the log entries and filter for them.
 
+
+## Install
+
+If you want to use this package, you simply need to add a require statement to your `composer.json` file:
+
+```json
+{
+    "require": {
+        "de-swebhosting-flow-package/databaselog": "dev-master"
+    }
+}
+```
+
 ## How to use it
 
 ### Database backend
