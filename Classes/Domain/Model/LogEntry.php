@@ -24,7 +24,6 @@ use TYPO3\Party\Domain\Service\PartyService;
  */
 class LogEntry {
 
-
 	/**
 	 * The identifier of the account that triggered the log entry.
 	 *
@@ -164,10 +163,24 @@ class LogEntry {
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getAccountIdentifier() {
+		return $this->accountIdentifier;
+	}
+
+	/**
 	 * @return array
 	 */
 	public function getAdditionalData() {
 		return $this->additionalData;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getAuthenticationProviderName() {
+		return $this->authenticationProviderName;
 	}
 
 	/**
@@ -217,6 +230,20 @@ class LogEntry {
 	 */
 	public function getSeverity() {
 		return $this->severity;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getUserFullName() {
+		return $this->userFullName;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getUserObjectIdentifier() {
+		return $this->userObjectIdentifier;
 	}
 
 	/**
