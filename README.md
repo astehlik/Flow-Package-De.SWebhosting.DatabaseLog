@@ -20,6 +20,9 @@ If you want to use this package, you simply need to add a require statement to y
 }
 ```
 
+**Hint!** This package was tested with TYPO3 Flow Version 3.x only. If you are having trouble with older versions
+please open an issue.
+
 ## How to use it
 
 ### Database backend
