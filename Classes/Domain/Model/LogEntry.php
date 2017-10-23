@@ -14,7 +14,7 @@ namespace De\SWebhosting\DatabaseLog\Domain\Model;
 
 use Doctrine\ORM\Mapping as ORM;
 use Neos\Flow\Annotations as Flow;
-use TYPO3\Party\Domain\Service\PartyService;
+use Neos\Party\Domain\Service\PartyService;
 
 /**
  * A log entry
@@ -258,7 +258,7 @@ class LogEntry {
 		$this->accountIdentifier = (string)$account->getAccountIdentifier();
 		$this->authenticationProviderName = (string)$account->getAuthenticationProviderName();
 
-		if ($this->packageManager->isPackageActive('TYPO3.Party')) {
+		if ($this->packageManager->isPackageActive('Neos.Party')) {
 			/** @var PartyService $partyService */
 			$partyService = $this->objectManager->get(PartyService::class);
 			$party = $partyService->getAssignedPartyOfAccount($account);
@@ -280,7 +280,7 @@ class LogEntry {
 	 * to the object identifier of the given user. Additionally setUserFullName
 	 * will be called.
 	 *
-	 * @param \TYPO3\Party\Domain\Model\AbstractParty $user
+	 * @param \Neos\Party\Domain\Model\AbstractParty $user
 	 * @return void
 	 */
 	protected function setUser($user) {
@@ -300,7 +300,7 @@ class LogEntry {
 	 * of Person and has an associated name. Otherwise the property
 	 * is reset to NULL.
 	 *
-	 * @param \TYPO3\Party\Domain\Model\AbstractParty $user
+	 * @param \Neos\Party\Domain\Model\AbstractParty $user
 	 * @return void
 	 */
 	protected function setUserFullName($user) {
@@ -309,7 +309,7 @@ class LogEntry {
 
 		if (
 			!isset($user)
-			|| !$user instanceof \TYPO3\Party\Domain\Model\Person
+			|| !$user instanceof \Neos\Party\Domain\Model\Person
 		) {
 			return;
 		}

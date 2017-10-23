@@ -25,7 +25,7 @@ class LogEntryRepository extends \Neos\Flow\Persistence\Repository {
 	/**
 	 * Finds a log entry by user and message. The latest entries are on the top and no limit is applied by default.
 	 *
-	 * @param string|\TYPO3\Party\Domain\Model\AbstractParty $userObjectIdentifier The user or the object identifier of the user to search for.
+	 * @param string|\Neos\Party\Domain\Model\AbstractParty $userObjectIdentifier The user or the object identifier of the user to search for.
 	 * @param string $message The message to search for.
 	 * @param array $orderings The order of the log messages.
 	 * @param int $limit Limit the number of results.
@@ -54,7 +54,7 @@ class LogEntryRepository extends \Neos\Flow\Persistence\Repository {
 	/**
 	 * Removes all log entries from the given user.
 	 *
-	 * @param string|\TYPO3\Party\Domain\Model\AbstractParty $userObjectIdentifier
+	 * @param string|\Neos\Party\Domain\Model\AbstractParty $userObjectIdentifier
 	 */
 	public function removeAllFromUser($userObjectIdentifier) {
 		$userLogEntries = $this->findByUserObjectIdentifier($userObjectIdentifier);
