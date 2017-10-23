@@ -12,7 +12,7 @@ namespace De\SWebhosting\DatabaseLog\Log;
  * The TYPO3 project - inspiring people to share!                         *
  *                                                                        */
 
-use TYPO3\Flow\Log\LoggerInterface;
+use Neos\Flow\Log\LoggerInterface;
 
 /**
  * Interface for logger for tracing actions connected to an account.
@@ -21,7 +21,7 @@ interface AccountActionLoggerInterface extends LoggerInterface {
 
 	/**
 	 * @param string $message The log message.
-	 * @param \TYPO3\Flow\Security\Account $account The account connected to this log entry.
+	 * @param \Neos\Flow\Security\Account $account The account connected to this log entry.
 	 * @param int $severity The severity of the log entry.
 	 * @param array $additionalData Optional additional data in an array.
 	 * @param string $packageKey The package key from which the logging was triggered.

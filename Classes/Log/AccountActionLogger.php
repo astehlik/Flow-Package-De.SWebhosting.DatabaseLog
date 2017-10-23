@@ -12,12 +12,12 @@ namespace De\SWebhosting\DatabaseLog\Log;
  * The TYPO3 project - inspiring people to share!                         *
  *                                                                        */
 
-use TYPO3\Flow\Annotations as Flow;
+use Neos\Flow\Annotations as Flow;
 
 /**
  * Logger for tracing actions connected to an account.
  */
-class AccountActionLogger extends \TYPO3\Flow\Log\Logger implements AccountActionLoggerInterface {
+class AccountActionLogger extends \Neos\Flow\Log\Logger implements AccountActionLoggerInterface {
 
 	/**
 	 * @Flow\Inject
@@ -32,7 +32,7 @@ class AccountActionLogger extends \TYPO3\Flow\Log\Logger implements AccountActio
 	 * and a relation to the party table will be stored.
 	 *
 	 * @param string $message The log message.
-	 * @param \TYPO3\Flow\Security\Account $account The account connected to this log entry.
+	 * @param \Neos\Flow\Security\Account $account The account connected to this log entry.
 	 * @param int $severity The severity of the log entry.
 	 * @param array $additionalData Optional additional data in an array.
 	 * @param string $packageKey The package key from which the logging was triggered.

@@ -12,15 +12,15 @@ namespace De\SWebhosting\DatabaseLog\Domain\Repository;
  * The TYPO3 project - inspiring people to share!                         *
  *                                                                        */
 
-use TYPO3\Flow\Annotations as Flow;
+use Neos\Flow\Annotations as Flow;
 
 /**
  * Repository for log entries.
  *
  * @Flow\Scope("singleton")
- * @method \TYPO3\Flow\Persistence\QueryResultInterface findByUserObjectIdentifier(string $user)
+ * @method \Neos\Flow\Persistence\QueryResultInterface findByUserObjectIdentifier(string $user)
  */
-class LogEntryRepository extends \TYPO3\Flow\Persistence\Repository {
+class LogEntryRepository extends \Neos\Flow\Persistence\Repository {
 
 	/**
 	 * Finds a log entry by user and message. The latest entries are on the top and no limit is applied by default.
@@ -29,9 +29,9 @@ class LogEntryRepository extends \TYPO3\Flow\Persistence\Repository {
 	 * @param string $message The message to search for.
 	 * @param array $orderings The order of the log messages.
 	 * @param int $limit Limit the number of results.
-	 * @return \TYPO3\Flow\Persistence\QueryResultInterface
+	 * @return \Neos\Flow\Persistence\QueryResultInterface
 	 */
-	public function findByUserAndMessage($userObjectIdentifier, $message, $limit = NULL, $orderings = array('dateTime' => \TYPO3\Flow\Persistence\QueryInterface::ORDER_DESCENDING)) {
+	public function findByUserAndMessage($userObjectIdentifier, $message, $limit = NULL, $orderings = array('dateTime' => \Neos\Flow\Persistence\QueryInterface::ORDER_DESCENDING)) {
 
 		$query = $this->createQuery();
 

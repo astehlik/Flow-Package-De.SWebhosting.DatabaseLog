@@ -1,7 +1,7 @@
 
 De\SWebhosting\DatabaseLog\Log\AccountActionLoggerInterface:
   scope: singleton
-  factoryObjectName: TYPO3\Flow\Log\LoggerFactory
+  factoryObjectName: Neos\Flow\Log\LoggerFactory
   arguments:
     1:
       value: 'De_SWebhosting_DatabaseLog_AccountActionLogger'

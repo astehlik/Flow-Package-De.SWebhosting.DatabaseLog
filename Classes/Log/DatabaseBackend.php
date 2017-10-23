@@ -13,12 +13,12 @@ namespace De\SWebhosting\DatabaseLog\Log;
  *                                                                        */
 
 use De\SWebhosting\DatabaseLog\Domain\Model\LogEntry;
-use TYPO3\Flow\Annotations as Flow;
+use Neos\Flow\Annotations as Flow;
 
 /**
  * A Backend for storing logs in the database
  */
-class DatabaseBackend extends \TYPO3\Flow\Log\Backend\AbstractBackend {
+class DatabaseBackend extends \Neos\Flow\Log\Backend\AbstractBackend {
 
 	/**
 	 * @var \De\SWebhosting\DatabaseLog\Domain\Repository\LogEntryRepository
@@ -57,7 +57,7 @@ class DatabaseBackend extends \TYPO3\Flow\Log\Backend\AbstractBackend {
 				$possibleAccount = $additionalData['De.SWebhosting.DatabaseLog.Account'];
 				unset($additionalData['De.SWebhosting.DatabaseLog.Account']);
 
-				if ($possibleAccount instanceof \TYPO3\Flow\Security\Account) {
+				if ($possibleAccount instanceof \Neos\Flow\Security\Account) {
 					$account = $possibleAccount;
 				}
 			}

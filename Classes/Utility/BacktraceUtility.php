@@ -11,7 +11,7 @@ namespace De\SWebhosting\DatabaseLog\Utility;
  * The TYPO3 project - inspiring people to share!                         *
  *                                                                        */
 
-use TYPO3\Flow\Annotations as Flow;
+use Neos\Flow\Annotations as Flow;
 
 /**
  * Utility for backtrace handling.
@@ -22,7 +22,7 @@ class BacktraceUtility {
 
 	/**
 	 * @Flow\Inject
-	 * @var \TYPO3\Flow\Package\PackageManagerInterface
+	 * @var \Neos\Flow\Package\PackageManagerInterface
 	 */
 	protected $packageManager;
 

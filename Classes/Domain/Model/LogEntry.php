@@ -13,7 +13,7 @@ namespace De\SWebhosting\DatabaseLog\Domain\Model;
  *                                                                        */
 
 use Doctrine\ORM\Mapping as ORM;
-use TYPO3\Flow\Annotations as Flow;
+use Neos\Flow\Annotations as Flow;
 use TYPO3\Party\Domain\Service\PartyService;
 
 /**
@@ -92,7 +92,7 @@ class LogEntry {
 	/**
 	 * @Flow\Inject
 	 * @Flow\Transient
-	 * @var \TYPO3\Flow\ObjectManagement\ObjectManagerInterface
+	 * @var \Neos\Flow\ObjectManagement\ObjectManagerInterface
 	 */
 	protected $objectManager;
 
@@ -107,14 +107,14 @@ class LogEntry {
 	/**
 	 * @Flow\Inject
 	 * @Flow\Transient
-	 * @var \TYPO3\Flow\Package\PackageManagerInterface
+	 * @var \Neos\Flow\Package\PackageManagerInterface
 	 */
 	protected $packageManager;
 
 	/**
 	 * @Flow\Inject
 	 * @Flow\Transient
-	 * @var \TYPO3\Flow\Persistence\PersistenceManagerInterface
+	 * @var \Neos\Flow\Persistence\PersistenceManagerInterface
 	 */
 	protected $persistenceManager;
 
@@ -250,7 +250,7 @@ class LogEntry {
 	 * Sets the account properties and if the account has a related user it will
 	 * also set the user properties when the the party package is available.
 	 *
-	 * @param \TYPO3\Flow\Security\Account $account
+	 * @param \Neos\Flow\Security\Account $account
 	 * @return void
 	 */
 	public function setAccount($account) {

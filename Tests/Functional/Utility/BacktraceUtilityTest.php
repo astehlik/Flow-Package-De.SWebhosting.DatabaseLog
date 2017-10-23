@@ -17,7 +17,7 @@ use De\SWebhosting\DatabaseLog\Utility\BacktraceUtility;
 /**
  * Tests for the BacktraceUtility class.
  */
-class BacktraceUtilityTest extends \TYPO3\Flow\Tests\FunctionalTestCase {
+class BacktraceUtilityTest extends \Neos\Flow\Tests\FunctionalTestCase {
 
 	/**
 	 * @var \De\SWebhosting\DatabaseLog\Utility\BacktraceUtility

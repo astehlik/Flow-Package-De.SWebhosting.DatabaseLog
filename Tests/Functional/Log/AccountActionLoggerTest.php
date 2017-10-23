@@ -15,12 +15,12 @@ namespace De\SWebhosting\DatabaseLog\Tests\Functional\Log;
 use De\SWebhosting\DatabaseLog\Domain\Model\LogEntry;
 use De\SWebhosting\DatabaseLog\Domain\Repository\LogEntryRepository;
 use De\SWebhosting\DatabaseLog\Log\AccountActionLoggerInterface;
-use TYPO3\Flow\Security\AccountRepository;
+use Neos\Flow\Security\AccountRepository;
 
 /**
  * Tests for the AccountActionLogger class.
  */
-class AccountActionLoggerTest extends \TYPO3\Flow\Tests\FunctionalTestCase {
+class AccountActionLoggerTest extends \Neos\Flow\Tests\FunctionalTestCase {
 
 	/**
 	 * @var boolean
@@ -54,7 +54,7 @@ class AccountActionLoggerTest extends \TYPO3\Flow\Tests\FunctionalTestCase {
 
 		parent::setUp();
 
-		if (!$this->persistenceManager instanceof \TYPO3\Flow\Persistence\Doctrine\PersistenceManager) {
+		if (!$this->persistenceManager instanceof \Neos\Flow\Persistence\Doctrine\PersistenceManager) {
 			$this->markTestSkipped('Doctrine persistence is not enabled');
 		}
 
@@ -109,10 +109,10 @@ class AccountActionLoggerTest extends \TYPO3\Flow\Tests\FunctionalTestCase {
 	/**
 	 * Creates a test account and adds it to the database.
 	 *
-	 * @return \TYPO3\Flow\Security\Account
+	 * @return \Neos\Flow\Security\Account
 	 */
 	protected function createTestAccount() {
-		$testAccount = new \TYPO3\Flow\Security\Account();
+		$testAccount = new \Neos\Flow\Security\Account();
 		$testAccount->setAccountIdentifier('testidentifier');
 		$testAccount->setAuthenticationProviderName('testprovider');
 		$this->accountRepository->add($testAccount);
