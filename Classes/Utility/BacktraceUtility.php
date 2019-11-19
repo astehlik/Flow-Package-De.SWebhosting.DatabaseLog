@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace De\SWebhosting\DatabaseLog\Utility;
 
@@ -15,6 +16,7 @@ namespace De\SWebhosting\DatabaseLog\Utility;
 
 use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Package\PackageInterface;
+use Neos\Flow\Package\PackageManager;
 
 /**
  * Utility for backtrace handling.
@@ -25,7 +27,7 @@ class BacktraceUtility
 {
     /**
      * @Flow\Inject
-     * @var \Neos\Flow\Package\PackageManagerInterface
+     * @var PackageManager
      */
     protected $packageManager;
 
@@ -86,8 +88,7 @@ class BacktraceUtility
     private function getAvailablePackageNamespaces(): array
     {
         $namespaces = [];
-        /** @var PackageInterface $package */
-        foreach ($this->packageManager->getActivePackages() as $package) {
+        foreach ($this->packageManager->getFlowPackages() as $package) {
             foreach ($package->getNamespaces() as $namespace) {
                 $namespaces[$namespace] = $package->getPackageKey();
             }
@@ -96,10 +97,12 @@ class BacktraceUtility
     }
 
     /**
-     * Finds a package by a given class name of that package, @see getPackageOfObject().
+     * Finds a package by a given class name of that package, @param string $className The fully qualified class name
+     * to find the possessing package of
      *
-     * @param string $className The fully qualified class name to find the possessing package of
      * @return PackageInterface The package the given object belongs to or NULL if it could not be found
+     * @see getPackageOfObject().
+     *
      */
     private function getPackageKeyByClassName($className)
     {

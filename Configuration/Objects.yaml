@@ -1,13 +1,6 @@
-
 De\SWebhosting\DatabaseLog\Log\AccountActionLoggerInterface:
   scope: singleton
-  factoryObjectName: Neos\Flow\Log\LoggerFactory
+  factoryObjectName: Neos\Flow\Log\PsrLoggerFactoryInterface
   arguments:
     1:
-      value: 'De_SWebhosting_DatabaseLog_AccountActionLogger'
-    2:
-      value: 'De\SWebhosting\DatabaseLog\Log\AccountActionLogger'
-    3:
-      setting: De.SWebhosting.DatabaseLog.log.AccountActionLogger.backend
-    4:
-      setting: De.SWebhosting.DatabaseLog.log.AccountActionLogger.backendOptions
+      value: 'accountActionLogger'

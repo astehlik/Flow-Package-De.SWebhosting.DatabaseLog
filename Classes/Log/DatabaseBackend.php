@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace De\SWebhosting\DatabaseLog\Log;
 
 /*                                                                        *
@@ -13,89 +15,110 @@ namespace De\SWebhosting\DatabaseLog\Log;
  *                                                                        */
 
 use De\SWebhosting\DatabaseLog\Domain\Model\LogEntry;
+use De\SWebhosting\DatabaseLog\Domain\Repository\LogEntryRepository;
+use InvalidArgumentException;
 use Neos\Flow\Annotations as Flow;
+use Neos\Flow\Log\Backend\AbstractBackend;
+use Neos\Flow\Security\Account;
 
 /**
  * A Backend for storing logs in the database
  */
-class DatabaseBackend extends \Neos\Flow\Log\Backend\AbstractBackend {
+class DatabaseBackend extends AbstractBackend
+{
+    /**
+     * @var LogEntryRepository
+     * @Flow\Inject
+     */
+    protected $logEntryRepository;
 
-	/**
-	 * @var \De\SWebhosting\DatabaseLog\Domain\Repository\LogEntryRepository
-	 * @Flow\Inject
-	 */
-	protected $logEntryRepository;
+    /**
+     * Appends the given message along with the additional information into the log.
+     *
+     * @param string $message The message to log
+     * @param int $severity One of the LOG_* constants
+     * @param mixed $additionalData A variable containing more information about the event to be logged
+     * @param string $packageKey Key of the package triggering the log (determined automatically if not specified)
+     * @param string $className Name of the class triggering the log (determined automatically if not specified)
+     * @param string $methodName Name of the method triggering the log (determined automatically if not specified)
+     */
+    public function append(
+        string $message,
+        int $severity = LOG_INFO,
+        $additionalData = null,
+        string $packageKey = null,
+        string $className = null,
+        string $methodName = null
+    ): void {
+        if ($severity > $this->severityThreshold) {
+            return;
+        }
 
-	/**
-	 * Appends the given message along with the additional information into the log.
-	 *
-	 * @param string $message The message to log
-	 * @param int $severity One of the LOG_* constants
-	 * @param mixed $additionalData A variable containing more information about the event to be logged
-	 * @param string $packageKey Key of the package triggering the log (determined automatically if not specified)
-	 * @param string $className Name of the class triggering the log (determined automatically if not specified)
-	 * @param string $methodName Name of the method triggering the log (determined automatically if not specified)
-	 * @throws \InvalidArgumentException If the additionalData parameter set, but not an array
-	 * @return void
-	 */
-	public function append($message, $severity = LOG_INFO, $additionalData = NULL, $packageKey = NULL, $className = NULL, $methodName = NULL) {
+        $account = null;
 
-		if ($severity > $this->severityThreshold) {
-			return;
-		}
+        if (isset($additionalData)) {
 
-		$account = NULL;
+            if (!is_array($additionalData)) {
+                throw new InvalidArgumentException(
+                    'For the database backend the additional data needs to be an array'
+                );
+            }
 
-		if (isset($additionalData)) {
+            if (array_key_exists('De.SWebhosting.DatabaseLog.Account', $additionalData)) {
 
-			if (!is_array($additionalData)) {
-				throw new \InvalidArgumentException('For the database backend the additional data needs to be an array');
-			}
+                $possibleAccount = $additionalData['De.SWebhosting.DatabaseLog.Account'];
+                unset($additionalData['De.SWebhosting.DatabaseLog.Account']);
 
-			if (array_key_exists('De.SWebhosting.DatabaseLog.Account', $additionalData)) {
+                if ($possibleAccount instanceof Account) {
+                    $account = $possibleAccount;
+                }
+            }
 
-				$possibleAccount = $additionalData['De.SWebhosting.DatabaseLog.Account'];
-				unset($additionalData['De.SWebhosting.DatabaseLog.Account']);
+            if (!count($additionalData)) {
+                $additionalData = null;
+            }
+        }
 
-				if ($possibleAccount instanceof \Neos\Flow\Security\Account) {
-					$account = $possibleAccount;
-				}
-			}
+        $logEntry = new LogEntry($message, $severity, $additionalData, $packageKey, $className, $methodName);
 
-			if (!count($additionalData)) {
-				$additionalData = NULL;
-			}
-		}
+        if (isset($account)) {
+            $logEntry->setAccount($account);
+        }
 
-		$logEntry = new LogEntry($message, $severity, $additionalData, $packageKey, $className, $methodName);
+        $ipAddress = $this->getIpAddress();
+        $logEntry->setIpAddress($ipAddress);
 
-		if (isset($account)) {
-			$logEntry->setAccount($account);
-		}
+        $this->logEntryRepository->add($logEntry);
+    }
 
-		$ipAddress = ($this->logIpAddress === TRUE) ? str_pad((isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : ''), 15) : '';
-		$logEntry->setIpAddress($ipAddress);
+    /**
+     * Carries out all actions necessary to cleanly close the logging backend, such as
+     * closing the log file or disconnecting from a database.
+     */
+    public function close(): void
+    {
+        // nothing to do
+    }
 
-		$this->logEntryRepository->add($logEntry);
-	}
+    /**
+     * Carries out all actions necessary to prepare the logging backend, such as opening
+     * the log file or opening a database connection.
+     */
+    public function open(): void
+    {
+        // nothing to do
+    }
 
-	/**
-	 * Carries out all actions necessary to cleanly close the logging backend, such as
-	 * closing the log file or disconnecting from a database.
-	 *
-	 * @return void
-	 */
-	public function close() {
-		// nothing to do
-	}
+    /**
+     * @return string
+     */
+    protected function getIpAddress(): string
+    {
+        if (!$this->logIpAddress) {
+            return '';
+        }
 
-	/**
-	 * Carries out all actions necessary to prepare the logging backend, such as opening
-	 * the log file or opening a database connection.
-	 *
-	 * @return void
-	 */
-	public function open() {
-		// nothing to do
-	}
+        $remoteAddress = $_SERVER['REMOTE_ADDR'] ?? '';
+        return str_pad($remoteAddress, 15);
+    }
 }

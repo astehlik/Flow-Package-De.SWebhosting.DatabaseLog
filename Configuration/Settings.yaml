@@ -9,3 +9,16 @@ De:
           backendOptions:
              severityThreshold: '%LOG_INFO%'
              logIpAddress: TRUE
+
+Neos:
+  Flow:
+    log:
+      psr3:
+        'Neos\Flow\Log\PsrLoggerFactory':
+          # Settings for Flow's default loggers
+          accountActionLogger:
+            default:
+              class: De\SWebhosting\DatabaseLog\Log\DatabaseBackend
+              options:
+                severityThreshold: '%LOG_INFO%'
+                logIpAddress: TRUE

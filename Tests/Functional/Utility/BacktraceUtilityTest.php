@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace De\SWebhosting\DatabaseLog\Tests\Functional\Utility;
 
 /*                                                                        *
@@ -13,49 +15,61 @@ namespace De\SWebhosting\DatabaseLog\Tests\Functional\Utility;
  *                                                                        */
 
 use De\SWebhosting\DatabaseLog\Utility\BacktraceUtility;
+use Neos\Flow\Tests\FunctionalTestCase;
 
 /**
  * Tests for the BacktraceUtility class.
  */
-class BacktraceUtilityTest extends \Neos\Flow\Tests\FunctionalTestCase {
+class BacktraceUtilityTest extends FunctionalTestCase
+{
+    /**
+     * @var \De\SWebhosting\DatabaseLog\Utility\BacktraceUtility
+     */
+    protected $backtraceUtility;
 
-	/**
-	 * @var \De\SWebhosting\DatabaseLog\Utility\BacktraceUtility
-	 */
-	protected $backtraceUtility;
+    /**
+     * Initializes the action logger.
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->backtraceUtility = $this->objectManager->get(BacktraceUtility::class);
+    }
 
-	/**
-	 * Initializes the action logger.
-	 */
-	public function setUp() {
-		parent::setUp();
-		$this->backtraceUtility = $this->objectManager->get(BacktraceUtility::class);
-	}
+    /**
+     * @dataProvider backtraceDataIsDeterminedCorrectlyDataProvider
+     * @test
+     * @param int $offset
+     * @param array $expectedResult
+     */
+    public function backtraceDataIsDeterminedCorrectly($offset, $expectedResult)
+    {
+        $result = $this->backtraceUtility->getBacktraceData($offset);
+        $this->assertEquals($expectedResult, $result);
+    }
 
-	/**
-	 * @return array
-	 */
-	public function backtraceDataIsDeterminedCorrectlyDataProvider()  {
-		return array(
-			'inner method' => array(
-				0,
-				array('De.SWebhosting.DatabaseLog', 'De\SWebhosting\DatabaseLog\Utility\BacktraceUtility', 'getBacktraceData')
-			),
-			'test method' => array(
-				1,
-				array('De.SWebhosting.DatabaseLog', 'De\SWebhosting\DatabaseLog\Tests\Functional\Utility\BacktraceUtilityTest', 'backtraceDataIsDeterminedCorrectly')
-			)
-		);
-	}
-
-	/**
-	 * @dataProvider backtraceDataIsDeterminedCorrectlyDataProvider
-	 * @test
-	 * @param int $offset
-	 * @param array $expectedResult
-	 */
-	public function backtraceDataIsDeterminedCorrectly($offset, $expectedResult) {
-		$result = $this->backtraceUtility->getBacktraceData($offset);
-		$this->assertEquals($expectedResult, $result);
-	}
+    /**
+     * @return array
+     */
+    public function backtraceDataIsDeterminedCorrectlyDataProvider()
+    {
+        return [
+            'inner method' => [
+                0,
+                [
+                    'De.SWebhosting.DatabaseLog',
+                    'De\SWebhosting\DatabaseLog\Utility\BacktraceUtility',
+                    'getBacktraceData',
+                ],
+            ],
+            'test method' => [
+                1,
+                [
+                    'De.SWebhosting.DatabaseLog',
+                    'De\SWebhosting\DatabaseLog\Tests\Functional\Utility\BacktraceUtilityTest',
+                    'backtraceDataIsDeterminedCorrectly',
+                ],
+            ],
+        ];
+    }
 }
