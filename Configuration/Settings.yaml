@@ -7,5 +7,5 @@ De:
         AccountActionLogger:
           backend: De\SWebhosting\DatabaseLog\Log\DatabaseBackend
           backendOptions:
-             severityThreshold: %LOG_INFO%
+             severityThreshold: '%LOG_INFO%'
              logIpAddress: TRUE
