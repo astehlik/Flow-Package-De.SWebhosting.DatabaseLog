@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.com/astehlik/Flow-Package-De.SWebhosting.DatabaseLog.svg?branch=develop)](https://travis-ci.com/astehlik/Flow-Package-De.SWebhosting.DatabaseLog)
 
 # De.SWebhosting.DatabaseLog
 
