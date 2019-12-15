@@ -15,34 +15,22 @@ namespace De\SWebhosting\DatabaseLog\Log;
  *                                                                        */
 
 use Neos\Flow\Security\Account;
-use Psr\Log\LoggerInterface;
 
 /**
  * Interface for logger for tracing actions connected to an account.
  */
-interface AccountActionLoggerInterface extends LoggerInterface
+interface AccountActionLoggerInterface
 {
     /**
+     * @param mixed $level
      * @param string $message The log message.
+     * @param array $context Optional additional data in an array.
      * @param Account $account The account connected to this log entry.
-     * @param int $severity The severity of the log entry.
-     * @param array $additionalData Optional additional data in an array.
-     * @param string $packageKey The package key from which the logging was triggered.
-     * @param string $className The class name from which the logging was triggered.
-     * @param string $methodName The method name from which the logging was triggered.
-     * @param int $backTraceOffset If the package key / class name / method name are autodetected,
-     *        this value can be used to modify the offset that is used when reading these values
-     *        from a debug_backtrace().
-     * @return void
      */
     public function logAccountAction(
+        $level,
         $message,
-        $account,
-        $severity = LOG_INFO,
-        $additionalData = null,
-        $packageKey = null,
-        $className = null,
-        $methodName = null,
-        $backTraceOffset = 0
-    );
+        Account $account = null,
+        array $context = []
+    ): void;
 }

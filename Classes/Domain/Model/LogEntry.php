@@ -17,12 +17,6 @@ namespace De\SWebhosting\DatabaseLog\Domain\Model;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Neos\Flow\Annotations as Flow;
-use Neos\Flow\ObjectManagement\ObjectManagerInterface;
-use Neos\Flow\Persistence\PersistenceManagerInterface;
-use Neos\Flow\Security\Account;
-use Neos\Party\Domain\Model\AbstractParty;
-use Neos\Party\Domain\Model\Person;
-use Neos\Party\Domain\Service\PartyService;
 
 /**
  * A log entry
@@ -98,26 +92,12 @@ class LogEntry
     protected $methodName;
 
     /**
-     * @Flow\Inject
-     * @Flow\Transient
-     * @var ObjectManagerInterface
-     */
-    protected $objectManager;
-
-    /**
      * The package that created this log message.
      *
      * @var string
      * @ORM\Column(nullable=true)
      */
     protected $packageKey;
-
-    /**
-     * @Flow\Inject
-     * @Flow\Transient
-     * @var PersistenceManagerInterface
-     */
-    protected $persistenceManager;
 
     /**
      * The severity of the log entry
@@ -142,23 +122,18 @@ class LogEntry
      */
     protected $userObjectIdentifier;
 
-    /**
-     * Creates a new log entry
-     *
-     * @param string $message
-     * @param int $severity
-     * @param array $additionalData
-     * @param string $packageKey
-     * @param string $className
-     * @param string $methodName
-     */
     public function __construct(
-        $message,
-        $severity = LOG_INFO,
-        $additionalData = null,
-        $packageKey = null,
-        $className = null,
-        $methodName = null
+        string $message,
+        int $severity,
+        ?array $additionalData,
+        ?string $packageKey,
+        ?string $className,
+        ?string $methodName,
+        ?string $ipAddress,
+        string $accountIdentifier,
+        string $authenticationProviderName,
+        ?string $userObjectIdentifier,
+        ?string $userFullName
     ) {
         $this->dateTime = new DateTime();
         $this->message = $message;
@@ -167,176 +142,70 @@ class LogEntry
         $this->packageKey = $packageKey;
         $this->className = $className;
         $this->methodName = $methodName;
-        $this->ipAddress = null;
+        $this->ipAddress = $ipAddress;
+        $this->accountIdentifier = $accountIdentifier;
+        $this->authenticationProviderName = $authenticationProviderName;
+        $this->userObjectIdentifier = $userObjectIdentifier;
+        $this->userFullName = $userFullName;
     }
 
-    /**
-     * @return string
-     */
-    public function getAccountIdentifier()
+    public function getAccountIdentifier(): string
     {
         return $this->accountIdentifier;
     }
 
-    /**
-     * @return array
-     */
-    public function getAdditionalData()
+    public function getAdditionalData(): ?array
     {
         return $this->additionalData;
     }
 
-    /**
-     * @return string
-     */
-    public function getAuthenticationProviderName()
+    public function getAuthenticationProviderName(): string
     {
         return $this->authenticationProviderName;
     }
 
-    /**
-     * @return string
-     */
-    public function getClassName()
+    public function getClassName(): ?string
     {
         return $this->className;
     }
 
-    /**
-     * @return DateTime
-     */
-    public function getDateTime()
+    public function getDateTime(): DateTime
     {
         return $this->dateTime;
     }
 
-    /**
-     * @return string
-     */
-    public function getIpAddress()
+    public function getIpAddress(): ?string
     {
         return $this->ipAddress;
     }
 
-    /**
-     * @return string
-     */
-    public function getMessage()
+    public function getMessage(): string
     {
         return $this->message;
     }
 
-    /**
-     * @return string
-     */
-    public function getMethodName()
+    public function getMethodName(): ?string
     {
         return $this->methodName;
     }
 
-    /**
-     * @return string
-     */
-    public function getPackageKey()
+    public function getPackageKey(): ?string
     {
         return $this->packageKey;
     }
 
-    /**
-     * @return int
-     */
-    public function getSeverity()
+    public function getSeverity(): int
     {
         return $this->severity;
     }
 
-    /**
-     * @return string
-     */
-    public function getUserFullName()
+    public function getUserFullName(): ?string
     {
         return $this->userFullName;
     }
 
-    /**
-     * @return string
-     */
-    public function getUserObjectIdentifier()
+    public function getUserObjectIdentifier(): ?string
     {
         return $this->userObjectIdentifier;
-    }
-
-    /**
-     * Sets the account properties and if the account has a related user it will
-     * also set the user properties when the the party package is available.
-     *
-     * @param Account $account
-     * @return void
-     */
-    public function setAccount($account)
-    {
-        $this->accountIdentifier = (string)$account->getAccountIdentifier();
-        $this->authenticationProviderName = (string)$account->getAuthenticationProviderName();
-
-        if (!class_exists('Neos\\Party\\Domain\\Service\\PartyService')) {
-            return;
-        }
-
-        /** @var PartyService $partyService */
-        $partyService = $this->objectManager->get(PartyService::class);
-        $party = $partyService->getAssignedPartyOfAccount($account);
-        if (isset($party)) {
-            $this->setUser($party);
-        }
-    }
-
-    /**
-     * @param string $ipAddress
-     */
-    public function setIpAddress($ipAddress)
-    {
-        $this->ipAddress = $ipAddress;
-    }
-
-    /**
-     * If the user is not NULL the userObjectIdentifier property will be set
-     * to the object identifier of the given user. Additionally setUserFullName
-     * will be called.
-     *
-     * @param AbstractParty $user
-     * @return void
-     */
-    protected function setUser($user)
-    {
-        if (!isset($user)) {
-            $this->userObjectIdentifier = null;
-            $this->userFullName = null;
-            return;
-        }
-
-        $this->userObjectIdentifier = $this->persistenceManager->getIdentifierByObject($user);
-        $this->setUserFullName($user);
-    }
-
-    /**
-     * Sets the userFullName property if the given user is an instance
-     * of Person and has an associated name. Otherwise the property
-     * is reset to NULL.
-     *
-     * @param AbstractParty $user
-     * @return void
-     */
-    protected function setUserFullName($user)
-    {
-        $this->userFullName = null;
-
-        if (!isset($user) || !$user instanceof Person) {
-            return;
-        }
-
-        $personName = $user->getName();
-        if (isset($personName)) {
-            $this->userFullName = $personName->getFullName();
-        }
     }
 }

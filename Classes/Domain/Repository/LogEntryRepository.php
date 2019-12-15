@@ -43,7 +43,6 @@ class LogEntryRepository extends Repository
         $limit = null,
         $orderings = ['dateTime' => QueryInterface::ORDER_DESCENDING]
     ) {
-
         $query = $this->createQuery();
 
         $query->matching(

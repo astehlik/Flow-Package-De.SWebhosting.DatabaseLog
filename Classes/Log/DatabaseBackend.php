@@ -14,12 +14,13 @@ namespace De\SWebhosting\DatabaseLog\Log;
  * The TYPO3 project - inspiring people to share!                         *
  *                                                                        */
 
-use De\SWebhosting\DatabaseLog\Domain\Model\LogEntry;
+use De\SWebhosting\DatabaseLog\Domain\Repository\LogEntryFactory;
 use De\SWebhosting\DatabaseLog\Domain\Repository\LogEntryRepository;
-use InvalidArgumentException;
 use Neos\Flow\Annotations as Flow;
+use Neos\Flow\Core\Bootstrap;
 use Neos\Flow\Log\Backend\AbstractBackend;
-use Neos\Flow\Security\Account;
+use Neos\Flow\ObjectManagement\ObjectManagerInterface;
+use Neos\Flow\Persistence\PersistenceManagerInterface;
 
 /**
  * A Backend for storing logs in the database
@@ -27,10 +28,28 @@ use Neos\Flow\Security\Account;
 class DatabaseBackend extends AbstractBackend
 {
     /**
+     * @var Bootstrap
+     * @Flow\Inject
+     */
+    protected $bootstrap;
+
+    /**
      * @var LogEntryRepository
      * @Flow\Inject
      */
     protected $logEntryRepository;
+
+    /**
+     * @var ObjectManagerInterface
+     * @Flow\Inject
+     */
+    protected $objectManager;
+
+    /**
+     * @var PersistenceManagerInterface
+     * @Flow\Inject
+     */
+    protected $persistenceManager;
 
     /**
      * Appends the given message along with the additional information into the log.
@@ -54,41 +73,15 @@ class DatabaseBackend extends AbstractBackend
             return;
         }
 
-        $account = null;
+        $logEntryFactory = $this->createLogEntryFactory($message, $severity);
+        $logEntryFactory->logAdditionalData($additionalData);
+        $logEntryFactory->logCodeLocation($packageKey, $className, $methodName);
+        $logEntryFactory->enableIpAdressLogging($this->logIpAddress);
 
-        if (isset($additionalData)) {
-
-            if (!is_array($additionalData)) {
-                throw new InvalidArgumentException(
-                    'For the database backend the additional data needs to be an array'
-                );
-            }
-
-            if (array_key_exists('De.SWebhosting.DatabaseLog.Account', $additionalData)) {
-
-                $possibleAccount = $additionalData['De.SWebhosting.DatabaseLog.Account'];
-                unset($additionalData['De.SWebhosting.DatabaseLog.Account']);
-
-                if ($possibleAccount instanceof Account) {
-                    $account = $possibleAccount;
-                }
-            }
-
-            if (!count($additionalData)) {
-                $additionalData = null;
-            }
-        }
-
-        $logEntry = new LogEntry($message, $severity, $additionalData, $packageKey, $className, $methodName);
-
-        if (isset($account)) {
-            $logEntry->setAccount($account);
-        }
-
-        $ipAddress = $this->getIpAddress();
-        $logEntry->setIpAddress($ipAddress);
+        $logEntry = $logEntryFactory->createLogEntry();
 
         $this->logEntryRepository->add($logEntry);
+        $this->persistenceManager->persistAll();
     }
 
     /**
@@ -97,7 +90,7 @@ class DatabaseBackend extends AbstractBackend
      */
     public function close(): void
     {
-        // nothing to do
+        // Nothing to do
     }
 
     /**
@@ -106,19 +99,22 @@ class DatabaseBackend extends AbstractBackend
      */
     public function open(): void
     {
-        // nothing to do
+        // Nothing to do
     }
 
     /**
-     * @return string
+     * @param string $message
+     * @param int $severity
+     * @return LogEntryFactory
      */
-    protected function getIpAddress(): string
+    private function createLogEntryFactory(string $message, int $severity): LogEntryFactory
     {
-        if (!$this->logIpAddress) {
-            return '';
-        }
-
-        $remoteAddress = $_SERVER['REMOTE_ADDR'] ?? '';
-        return str_pad($remoteAddress, 15);
+        return new LogEntryFactory(
+            $message,
+            $severity,
+            $this->bootstrap,
+            $this->objectManager,
+            $this->persistenceManager
+        );
     }
 }

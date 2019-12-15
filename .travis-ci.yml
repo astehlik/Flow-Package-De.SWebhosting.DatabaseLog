@@ -1,0 +1,40 @@
+language: php
+
+cache:
+  directories:
+    - $HOME/.composer/cache
+    - $HOME/.cache/composer
+
+before_script:
+  - if [ "$GITHUB_COMPOSER_AUTH" ]; then composer config -g github-oauth.github.com $GITHUB_COMPOSER_AUTH; fi
+  - composer install
+
+jobs:
+  include:
+    - stage: test
+      name: "Composer validate"
+      php: "7.4"
+      script: bash Build/bin/composer_validate.sh
+    - name: "PHP code sniffer"
+      php: "7.4"
+      script: bash Build/bin/run_code_style_checks.sh
+
+    - name: "PHP linting PHP 7.2"
+      php: "7.2"
+      script: bash Build/bin/lint_php.sh
+    - name: "PHP linting PHP 7.3"
+      php: "7.3"
+      script: bash Build/bin/lint_php.sh
+    - name: "PHP linting PHP 7.4"
+      php: "7.4"
+      script: bash Build/bin/lint_php.sh
+
+    - name: "Functional tests PHP 7.2"
+      php: "7.2"
+      script: bash Build/bin/run_functional_tests.sh
+    - name: "Functional tests PHP 7.3"
+      php: "7.3"
+      script: bash Build/bin/run_functional_tests.sh
+    - name: "Functional tests PHP 7.4"
+      php: "7.4"
+      script: bash Build/bin/run_functional_tests.sh

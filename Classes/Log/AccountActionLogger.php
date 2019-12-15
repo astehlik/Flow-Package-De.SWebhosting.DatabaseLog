@@ -14,21 +14,26 @@ namespace De\SWebhosting\DatabaseLog\Log;
  * The TYPO3 project - inspiring people to share!                         *
  *                                                                        */
 
-use De\SWebhosting\DatabaseLog\Utility\BacktraceUtility;
-use Neos\Flow\Annotations as Flow;
-use Neos\Flow\Log\Psr\Logger;
 use Neos\Flow\Security\Account;
+use Psr\Log\LoggerInterface;
 
 /**
  * Logger for tracing actions connected to an account.
  */
-class AccountActionLogger extends Logger implements AccountActionLoggerInterface
+class AccountActionLogger implements AccountActionLoggerInterface
 {
     /**
-     * @Flow\Inject
-     * @var BacktraceUtility
+     * @var LoggerInterface
      */
-    protected $backtraceUtility;
+    protected $logger;
+
+    /**
+     * @param LoggerInterface $logger
+     */
+    public function injectLogger(LoggerInterface $logger): void
+    {
+        $this->logger = $logger;
+    }
 
     /**
      * Writes a message in the log and adds the given party to the additional data.
@@ -36,46 +41,22 @@ class AccountActionLogger extends Logger implements AccountActionLoggerInterface
      * When the DatabaseBackend is used, the user will be extracted from the additional data
      * and a relation to the party table will be stored.
      *
+     * @param mixed $level
      * @param string $message The log message.
+     * @param array $context Optional additional data in an array.
      * @param Account $account The account connected to this log entry.
-     * @param int $severity The severity of the log entry.
-     * @param array $additionalData Optional additional data in an array.
-     * @param string $packageKey The package key from which the logging was triggered.
-     * @param string $className The class name from which the logging was triggered.
-     * @param string $methodName The method name from which the logging was triggered.
-     * @param int $backTraceOffset If the package key / class name / method name are autodetected,
-     *        this value can be used to modify the offset that is used when reading these values
-     *        from a debug_backtrace().
      * @return void
      */
     public function logAccountAction(
+        $level,
         $message,
-        $account,
-        $severity = LOG_INFO,
-        $additionalData = null,
-        $packageKey = null,
-        $className = null,
-        $methodName = null,
-        $backTraceOffset = 0
-    ) {
+        ?Account $account = null,
+        array $context = []
+    ): void {
         if (isset($account)) {
             $context['De.SWebhosting.DatabaseLog.Account'] = $account;
         }
 
-        if ($packageKey === null || $className === null || $methodName === null) {
-            // We add plus two because we do not want the logAccountAction() or the getBacktraceData() method to appear in the backtrace.
-            list($detectedPackageKey, $detectedClassName, $detectedMethodName) = $this->backtraceUtility->getBacktraceData(
-                $backTraceOffset + 2
-            );
-            $packageKey = $packageKey === null ? $detectedPackageKey : $packageKey;
-            $className = $className === null ? $detectedClassName : $className;
-            $methodName = $methodName === null ? $detectedMethodName : $methodName;
-        }
-
-        $context['FLOW_LOG_ENVIRONMENT']['packageKey'] = $packageKey;
-        $context['FLOW_LOG_ENVIRONMENT']['className'] = $className;
-        $context['FLOW_LOG_ENVIRONMENT']['methodName'] = $methodName;
-
-        $this->log($message, $severity, $context);
+        $this->logger->log($level, $message, $context);
     }
 }

@@ -16,11 +16,16 @@ namespace De\SWebhosting\DatabaseLog\Tests\Functional\Log;
 
 use De\SWebhosting\DatabaseLog\Domain\Model\LogEntry;
 use De\SWebhosting\DatabaseLog\Domain\Repository\LogEntryRepository;
+use De\SWebhosting\DatabaseLog\Log\AccountActionLogger;
 use De\SWebhosting\DatabaseLog\Log\AccountActionLoggerInterface;
+use Neos\Flow\Log\PsrLoggerFactoryInterface;
+use Neos\Flow\Log\Utility\LogEnvironment;
 use Neos\Flow\Persistence\Doctrine\PersistenceManager;
 use Neos\Flow\Security\Account;
 use Neos\Flow\Security\AccountRepository;
 use Neos\Flow\Tests\FunctionalTestCase;
+use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 
 /**
  * Tests for the AccountActionLogger class.
@@ -30,7 +35,7 @@ class AccountActionLoggerTest extends FunctionalTestCase
     /**
      * @var boolean
      */
-    static protected $testablePersistenceEnabled = true;
+    protected static $testablePersistenceEnabled = true;
 
     /**
      * @var AccountActionLoggerInterface
@@ -41,6 +46,11 @@ class AccountActionLoggerTest extends FunctionalTestCase
      * @var AccountRepository
      */
     protected $accountRepository;
+
+    /**
+     * @var LoggerInterface
+     */
+    protected $databaseLogger;
 
     /**
      * @var LogEntryRepository
@@ -57,7 +67,6 @@ class AccountActionLoggerTest extends FunctionalTestCase
      */
     protected function setUp(): void
     {
-
         parent::setUp();
 
         if (!$this->persistenceManager instanceof PersistenceManager) {
@@ -66,6 +75,7 @@ class AccountActionLoggerTest extends FunctionalTestCase
 
         $this->accountRepository = $this->objectManager->get(AccountRepository::class);
         $this->logEntryRepository = $this->objectManager->get(LogEntryRepository::class);
+        $this->databaseLogger = $this->objectManager->get(PsrLoggerFactoryInterface::class)->get('databaseLogger');
         $this->accountActionLogger = $this->objectManager->get(AccountActionLoggerInterface::class);
     }
 
@@ -75,14 +85,20 @@ class AccountActionLoggerTest extends FunctionalTestCase
     public function accountIsStoredAsExcpected()
     {
         $testAccount = $this->createTestAccount();
-        $this->accountActionLogger->logAccountAction($this->testMessage, $testAccount);
+        $this->accountActionLogger->logAccountAction(
+            LogLevel::INFO,
+            $this->testMessage,
+            $testAccount,
+            LogEnvironment::fromMethodName(__METHOD__)
+        );
         $this->persistenceManager->persistAll();
-        $entries = $this->logEntryRepository->findAll();
 
+        $entries = $this->logEntryRepository->findAll();
         $this->assertEquals(1, $entries->count());
 
         /** @var LogEntry $logEntry */
         $logEntry = $entries->getFirst();
+        $this->assertEquals(LOG_INFO, $logEntry->getSeverity());
         $this->assertEquals($this->testMessage, $logEntry->getMessage());
         $this->assertEquals($testAccount->getAccountIdentifier(), $logEntry->getAccountIdentifier());
         $this->assertEquals($testAccount->getAuthenticationProviderName(), $logEntry->getAuthenticationProviderName());
@@ -98,20 +114,18 @@ class AccountActionLoggerTest extends FunctionalTestCase
      */
     public function logDataIsStoredAsExpected()
     {
-
-        $this->accountActionLogger->info($this->testMessage);
+        $this->databaseLogger->info($this->testMessage, LogEnvironment::fromMethodName(__METHOD__));
         $this->persistenceManager->persistAll();
         $entries = $this->logEntryRepository->findAll();
         $this->assertEquals(1, $entries->count());
 
         /** @var LogEntry $logEntry */
         $logEntry = $entries->getFirst();
+        $this->assertEquals(LOG_INFO, $logEntry->getSeverity());
         $this->assertEquals($this->testMessage, $logEntry->getMessage());
         $this->assertEquals(__FUNCTION__, $logEntry->getMethodName());
         $this->assertEquals(__CLASS__, $logEntry->getClassName());
-
-        // TODO: This is currently the invalid behavior of TYPO3 Flow.
-        $this->assertEquals('SWebhosting', $logEntry->getPackageKey());
+        $this->assertEquals('De.SWebhosting.DatabaseLog', $logEntry->getPackageKey());
     }
 
     /**

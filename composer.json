@@ -2,9 +2,20 @@
     "name": "de-swebhosting-flow-package/databaselog",
     "type": "neos-package",
     "description": "Provides a Backend for writing log entries to the database and a logger for connecting log entries with accounts and optionally partys from the party framework.",
-    "license": "GPL-3.0+",
+    "license": "GPL-3.0-or-later",
+    "config": {
+        "vendor-dir": "Packages/Libraries",
+        "bin-dir": "bin"
+    },
     "require": {
-        "neos/flow": "*"
+        "php": "^7.2",
+        "neos/flow": "~6.1"
+    },
+    "require-dev": {
+        "neos/buildessentials": "~6.1",
+        "phpunit/phpunit": "~8.1",
+        "squizlabs/php_codesniffer": "~3.5.3",
+        "de-swebhosting/php-codestyle": "~1.0"
     },
     "suggest": {
         "typo3/party": "Allows logging of information of the party that is associated to an account."
@@ -13,6 +24,17 @@
         "psr-4": {
             "De\\SWebhosting\\DatabaseLog\\": "Classes"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "De\\SWebhosting\\DatabaseLog\\Tests\\": "Tests"
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "mkdir -p Packages/Application/",
+            "[ -L Packages/Application/De.SWebhosting.DatabaseLog ] || ln -snvf ../../ Packages/Application/De.SWebhosting.DatabaseLog"
+        ]
     },
     "extra": {
         "applied-flow-migrations": [

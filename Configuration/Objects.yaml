@@ -1,6 +1,13 @@
 De\SWebhosting\DatabaseLog\Log\AccountActionLoggerInterface:
+  className: De\SWebhosting\DatabaseLog\Log\AccountActionLogger
+
+De\SWebhosting\DatabaseLog\Log\AccountActionLogger:
   scope: singleton
-  factoryObjectName: Neos\Flow\Log\PsrLoggerFactoryInterface
-  arguments:
-    1:
-      value: 'accountActionLogger'
+  properties:
+    logger:
+      object:
+        factoryObjectName: Neos\Flow\Log\PsrLoggerFactoryInterface
+        factoryMethodName: get
+        arguments:
+          1:
+            value: databaseLogger
