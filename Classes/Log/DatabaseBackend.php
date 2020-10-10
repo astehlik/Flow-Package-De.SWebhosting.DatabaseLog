@@ -109,6 +109,9 @@ class DatabaseBackend extends AbstractBackend
      */
     private function createLogEntryFactory(string $message, int $severity): LogEntryFactory
     {
+        // Just call a method to load eagerly.
+        $this->persistenceManager->hasUnpersistedChanges();
+
         return new LogEntryFactory(
             $message,
             $severity,
