@@ -91,11 +91,6 @@ class LogEntryFactory
      */
     private $persistenceManager;
 
-    /**
-     * @var Account|null
-     */
-    private $relatedAccount = null;
-
     public function __construct(
         string $message,
         int $severity,
