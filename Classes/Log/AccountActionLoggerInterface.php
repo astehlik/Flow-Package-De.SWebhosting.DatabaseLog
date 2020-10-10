@@ -29,7 +29,7 @@ interface AccountActionLoggerInterface
      */
     public function logAccountAction(
         $level,
-        $message,
+        string $message,
         Account $account = null,
         array $context = []
     ): void;
